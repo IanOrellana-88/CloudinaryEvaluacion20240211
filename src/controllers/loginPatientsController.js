@@ -1,0 +1,67 @@
+import patientsModel from "../models/patients.js";
+import bcrypt from "bcryptjs";
+import jsonwebtoken from "jsonwebtoken";
+import { config } from "../../config.js";
+import express from "express";
+
+
+const loginPatientsController = {};
+
+loginPatientsController.login = async (req, res) => {
+    const {email, password} = req.body;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!email || !emailRegex.test (email)) {
+        return res.status (400).json({message: "correo invalido"});
+    
+    }
+    try {
+        const patientFound = await patientsModel.findOne({email});
+        
+        if (!patientFound) {
+            return res.status(400).json({message: "Patient not found"});
+        }
+        if (patientFound.timeOut && patientFound.timeOut > Date.now())
+        {return res.status(403).json({message: "Cuenta bloqueada"});
+    }
+    const isMatch = await bcrypt.compare (password.patientFound.password);
+
+    if (!isMatch) {patientFound.loginAttemps=(patientFound.loginAttemps || 0 ) + 1 ;
+
+        if (patientFound.loginAttemps >= 5){
+            patientFound.timeOut = Date.now () + 5 * 60 * 1000;
+            patientFound.loginAttemps = 0 ;
+
+            await patientFound();
+
+            return res
+            .status(403)
+            .json({message: "Cuenta bloqueada"});
+        }
+        await patientFound.save();
+
+        return res.status(401).json({message: "No se"})
+    }
+
+    patientFound.loginAttemps=0;
+    patientFound.timeOut = null;
+    const token = jsonwebtoken.sign (
+        {
+            id: patientFound._id,userType:"Patient"},
+            config.JWT.secret,
+            {expiresIn:"30d"},
+        
+    );
+
+    res.cookie("authCookie", token);
+
+    return res.status(200).json({message: "Login correctamente"});
+
+    } catch (error) {
+        console.log("error" + error);
+        return res.status(500).json({message: "Internal server error"});
+    };
+}
+
+
+export default loginPatientsController;
