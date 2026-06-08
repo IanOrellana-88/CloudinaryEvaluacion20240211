@@ -1,13 +1,13 @@
 import express from "express";
 import cookieParser from "cookie-parser";
-import patientsRouter from "../src/routes/patients.js"
-import registerPatientRouter from "../src/routes.registerPatients.js"
+import patientsRouter from "./src/routes/patients.js";
+import registerPatientsRouter from "./src/routes/registerPatients.js"
 import limiter from "./src/middlewares/limiter.js";
 import loginPatientsRouter from "./src/routes/loginPatients.js";
 import specialitiesRouter from "./src/routes/specialities.js"
-import quotesRouter from "./src/models/quotes.js";
-import filesRouter from "./src/models/files.js"
-import equipmentsRouter from "./src/models.equipments.js"
+import quotesRouter from "./src/routes/quotes.js";
+import filesRouter from "./src/routes/files.js"
+import equipmentsRouter from "./src/routes/equipments.js"
 
 import cors from "cors";
 
@@ -23,7 +23,7 @@ app.use  (
 app.use(limiter)
 app.use(cookieParser());
 app.use("api/login", loginPatientsRouter);
-app.use("api/register", registerPatientRouter);
+app.use("api/register", registerPatientsRouter);
 app.use("api/Patients", patientsRouter);
 app.use("api/specialities", specialitiesRouter);
 app.use("api/quotes", quotesRouter);
